@@ -56,6 +56,53 @@ h1,h2 {
   margin-top:20px;
   letter-spacing:2px;
 }
+#envelope {
+  position: relative;
+  width: 240px;
+  height: 160px;
+  margin: 25px auto;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+#envelope:hover {
+  transform: scale(1.06);
+}
+
+/* Envelope body */
+#envelope .body {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #f74040;
+  border-radius: 8px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  border: 2px solid #eee;
+}
+
+/* Top flap */
+#envelope .flap {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #f74040;
+  clip-path: polygon(0 0, 50% 60%, 100% 0);
+  transform-origin: top;
+  transition: transform 0.8s ease;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.lock-icon {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
 
 .card {
   background:white;
@@ -84,6 +131,11 @@ h1,h2 {
   height: 100px;
   border-radius: 30%;
 }
+.card {
+  width: 90%;
+  max-width: 700px;
+}
+
 
 @keyframes floatUp {
   0% {
@@ -141,7 +193,7 @@ button {
 </head>
 
 <body>
-<button onclick="resetSite()" style="
+<!-- <button onclick="resetSite()" style="
   position:fixed;
   bottom:15px;
   right:15px;
@@ -150,7 +202,7 @@ button {
   opacity:0.6;
 ">
   Reset (Testing)
-</button>
+</button> -->
 
 
 
@@ -198,19 +250,38 @@ button {
 <!-- PHASE 3 -->
 <section id="unlockSection" class="hidden">
   <div class="card">
-    <h1>Happy Valentine’s Day Babyyyy 💗💗💗</h1>
-    <p>
-      This story was always meant for you.
+    <h1>Happy Valentine’s Day Babyyyy 💗</h1>
+    <p>This one’s sealed just for you…</p>
 
+    <!-- Envelope -->
+    <p style="margin-bottom:10px; font-style:italic; color:#7a0c19;">
+       Maybe a love letter (Pink font btw) for you or maybe not 👀🤭
     </p>
-    <a href="YOUR_WEBSITE_LINK" class="btn">Open Our Story 📕</a>
-    <br>      <br>
-    <a href="CANVA_LINK_HERE" class="btn">Your Love Book 💌</a>
+
+    <div id="envelope" onclick="openEnvelope()">
+      <div class="flap"></div>
+      <div class="body"></div>
+      <div id="lockIcon" class="lock-icon">🔒</div>
+    </div>
+
+    <p style="font-size:0.9rem; opacity:0.7;">Unlock the envelope to find out!</p>
+
+
+
+    <!-- Video (hidden at first) -->
+    <video id="loveVideo" controls playsinline
+       style="display:none; width:100%; max-width:500px; margin:30px auto; border-radius:20px;">
+    <source src="images/Letter.mp4" type="video/mp4">
+    </video>
+
+
+
   </div>
 </section>
 
+
 <!-- PHASE 4 -->
-<section id="letterSection" class="hidden">
+<!-- <section id="letterSection" class="hidden">
   <div class="card letter">
     <p>
       Ritu,<br><br>
@@ -224,7 +295,7 @@ button {
       Always yours ❤️
     </p>
   </div>
-</section>
+</section> -->
 
 <script>
 const proposal = document.getElementById("proposal");
@@ -237,28 +308,28 @@ function accept(){
   countdownSection.classList.remove("hidden");
   localStorage.setItem("accepted","yes");
 }
-function resetSite(){
-  localStorage.removeItem("accepted");
-  location.reload();
-}
+// function resetSite(){
+//   localStorage.removeItem("accepted");
+//   location.reload();
+// }
 
 let noClicks = 0;
 
 const noResponses = [
   {
-    img: "images/1.JPG",
+    img: "images/1.jpg",
     text: "Yaa yaa try again"
   },
   {
-    img: "images/2.JPG",
+    img: "images/2.jpg",
     text: "Thiss only youu doo"
   },
   {
-    img: "images/3.JPG",
+    img: "images/3.jpg",
     text: "What raa niggesh"
   },
   {
-    img: "images/4.JPG",
+    img: "images/4.jpg",
     text: "Ouchhhh"
   }
 ];
@@ -284,6 +355,29 @@ function nope(){
     }
   }
 }
+
+function openEnvelope(){
+  const flap = document.querySelector("#envelope .flap");
+  const video = document.getElementById("loveVideo");
+  const lock = document.getElementById("lockIcon");
+
+  clearInterval(floatInterval);
+
+  // change lock to unlocked
+  lock.innerText = "🔓";
+  lock.style.transform = "translate(-50%, -50%) scale(1.2)";
+
+  flap.style.transform = "rotateX(180deg)";
+
+  setTimeout(() => {
+    document.getElementById("envelope").style.display = "none";
+    video.style.display = "block";
+    video.play();
+  }, 900);
+}
+
+
+
 
 
 
@@ -317,11 +411,11 @@ setInterval(()=>{
   const diff = valentine - now;
 
   if(diff <= 0){
-    countdownSection.classList.add("hidden");
-    unlockSection.classList.remove("hidden");
-    letterSection.classList.remove("hidden");
-    return;
+  countdownSection.classList.add("hidden");
+  unlockSection.classList.remove("hidden");
+  return;
   }
+
 
   const d = Math.floor(diff/(1000*60*60*24));
   const h = Math.floor((diff/(1000*60*60))%24);
@@ -342,12 +436,28 @@ setInterval(()=>{
 //   document.body.appendChild(h);
 //   setTimeout(()=>h.remove(),6000);
 // },800);
-setInterval(() => {
+// setInterval(() => {
+//   const float = document.createElement("div");
+//   float.className = "floating";
+
+//   const img = document.createElement("img");
+//   img.src = "images/float.png"; // your image
+//   img.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
+
+//   float.appendChild(img);
+//   float.style.left = Math.random() * 90 + "vw";
+//   float.style.animationDuration = (5 + Math.random() * 4) + "s";
+
+//   document.body.appendChild(float);
+
+//   setTimeout(() => float.remove(), 9000);
+// }, 900);
+const floatInterval = setInterval(() => {
   const float = document.createElement("div");
   float.className = "floating";
 
   const img = document.createElement("img");
-  img.src = "images/float.png"; // your image
+  img.src = "images/float.png";
   img.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
 
   float.appendChild(img);
@@ -358,6 +468,8 @@ setInterval(() => {
 
   setTimeout(() => float.remove(), 9000);
 }, 900);
+
+
 
 
 </script>
